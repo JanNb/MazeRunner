@@ -1,7 +1,8 @@
 var floorWidth = 30;
 var playerMovementVector = new THREE.Vector3( 1, 0, 0 );
-var playerSpeed = 0.1
-var turnRate = 10
+var playerSpeed = 0.1;
+var turnRate = 10;
+var debug = true;
 
 function init() {
     
@@ -66,7 +67,9 @@ function init() {
 		37 = left
 		38 = up
 		39 = right
-		40 = down	
+		40 = down
+		83 = S
+		87 = W
 	*/
 	if (e.keyCode==37){
 		//turn left
@@ -80,6 +83,16 @@ function init() {
 	} else if (e.keyCode==40) {
 		//turn around (180 degrees)
 		playerMovementVector.applyAxisAngle(new THREE.Vector3(0,1,0), Math.PI);
+	} else if (debug && e.keyCode==87) {
+		//increase Speed
+		playerSpeed += 0.1;
+	} else if (debug && e.keyCode==83) {
+		//decrease Speed
+		if (playerSpeed > 0) {
+			playerSpeed -= 0.1;
+		} else {
+			playerSpeed  = 0;
+		}
 	}
 });
   
