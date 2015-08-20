@@ -4,9 +4,28 @@
   var tilesPerRow = 5;
   var wallHeight = 10;
   var wallWidth = 1;
+  var checkWallsX=[];
+  var checkWallsZ=[];
+  var maybeTrapX=[];
+  var maybeTrapZ=[];
+  var trapNr=5;
+  
+  function sortCheckWalls(array){
+	  for (var i=0; i<array.length; i++){
+		  array[i].split(",")
+	  }
+  }
+  
+  function randomInt (min, max) {
+	return Math.floor(Math.random() * (max - min)) + min;
+	}
 
-function randomInt (min, max) {
-  return Math.floor(Math.random() * (max - min)) + min;
+function randomH (min, max) {
+	var randomNr;
+	while (randomNr%tileWidth !=0){ 
+	randomNr=Math.floor(Math.random() * (max - min)) + min;
+	};
+	return randomNr;
 }
 
 
@@ -31,6 +50,9 @@ function init() {
   directionalLight.position.set(0,20,10);
   //directionalLight.lookAt(scene.position);
   scene.add(directionalLight);
+  
+  var axisHelper = new THREE.AxisHelper( 75 );
+scene.add( axisHelper );
 
   
   var wallMaterial = new THREE.MeshPhongMaterial({color: 0x778899});
@@ -62,6 +84,18 @@ function init() {
   targetSphere.position.set(floorWidth-3,3,floorWidth-3);
   //sphere.castShadow=true;
   scene.add(targetSphere);  
+  
+  
+
+  //var test=new THREE.Mesh(hindernissGeometry,hindernissMaterial);
+  //scene.add(test);
+  /*for (var x=0; x<tilesPerRow; x++){
+	  hinderniss.position.x =randomH(0,floorWidth)+tileWidth/2;
+	  hinderniss.position.z =randomH(0,floorWidth);
+
+	  scene.add(hinderniss);
+	  
+  };*/
 
   //alert (tilesPerRow);
 
@@ -78,6 +112,7 @@ function init() {
   // function to add one wall piece - extending from (x1,z1) to
   // (x2,z2) - to `floor'; it is assumed that either `x1' equals `x2'
   // or `z1' equals `z2'
+  
   function maybeErectWall (x1, z1, x2, z2) {
     // the key for the hash table mentioned above
     var key = x1 + ',' + z1 + ',' + x2 + ',' + z2;
@@ -90,16 +125,23 @@ function init() {
         // shift a bit so that wall pieces are centered on the lines
         // dividing wooden tiles
         wall.position.z = z1;
+		//checkWallsX[wall.position.x]=wall.position.z;
+		checkWallsX.push(wall.position.x +","+wall.position.z);
       } else if (z1 < z2) {
         wall = new THREE.Mesh(wallGeometryZ, wallMaterial);
         wall.position.x = x1;
         wall.position.z = z1+tileWidth / 2;
+		checkWallsZ.push(wall.position.z +","+wall.position.x);
       }
       wall.position.y = (wallHeight) / 2;
-      scene.add(wall);
+      //console.log(wall);
+	  scene.add(wall);
+	  
     }
   }
-
+  
+  
+  
   // loop through all cells of the labyrinth and translate the
   // information into gray wall pieces; also add all missing wooden
   // tiles (i.e. all except the first one which is `floor')
@@ -123,6 +165,95 @@ function init() {
     }
   }
   
+  for (var i=0; i<checkWallsX.length; i++){
+		 var temp=checkWallsX[i].split(",");
+		 //console.log(temp);
+		 if (temp[0].length<2){
+			 temp[0]= "0"+temp[0];
+		 }
+		 if (temp[1].length<2){
+			 temp[1]= "0"+temp[1];
+		 }
+		 checkWallsX[i]=temp[0]+","+temp[1];
+	 } 
+	 
+	 for (var i=0; i<checkWallsZ.length; i++){
+		 var temp=checkWallsZ[i].split(",");
+		 
+		 if (temp[0].length<2){
+			 temp[0]= "0"+temp[0];
+		 }
+		 if (temp[1].length<2){
+			 temp[1]= "0"+temp[1];
+		 }
+		 checkWallsZ[i]=temp[0]+","+temp[1];
+	 } 
+    
+  checkWallsX.sort();
+  checkWallsZ.sort();
+    
+	 for (var i=0; i<checkWallsX.length-1; i++){
+		 var temp=checkWallsX[i].split(",");
+		 //temp.split(",");
+		 //console.log(temp);
+		 //console.log(typeof(temp));
+		 var temp2=checkWallsX[i+1].split(",");
+		 //temp2.split(",");
+		 if (parseInt(temp[1])+6 == parseInt(temp2[1])){
+			 maybeTrapX.push(checkWallsX[i]);
+		 }
+	 } 
+	 
+	 for (var i=0; i<checkWallsZ.length-1; i++){
+		 var temp=checkWallsZ[i].split(",");
+		 //temp.split(",");
+		 //console.log(temp);
+		 //console.log(typeof(temp));
+		 var temp2=checkWallsZ[i+1].split(",");
+		 //temp2.split(",");
+		 if (parseInt(temp[1])+6 == parseInt(temp2[1])){
+			 maybeTrapZ.push(checkWallsZ[i]);
+		 }
+	 } 
+	 
+	
+	  
+    randomTrap(maybeTrapX,maybeTrapZ);
+	
+	function randomTrap(x,z){
+		
+	var trapGeometryX= new THREE.BoxGeometry(tileWidth + wallWidth, wallHeight/2, wallWidth);
+	var trapGeometryZ= new THREE.BoxGeometry(wallWidth, wallHeight/2, tileWidth + wallWidth);
+	var trapMaterial= new THREE.MeshLambertMaterial({color:0xff0000});
+	var i=0;
+	var temp;
+	var trap;
+	while (i<trapNr){
+	var coin=randomInt(0,2);
+	console.log(coin);
+	if (coin==0){
+		temp=x[randomInt(0,x.length)].split(",");
+		console.log(temp);
+		trap= new THREE.Mesh(trapGeometryZ,trapMaterial);
+		trap.position.x=parseInt(temp[0]);
+		trap.position.z=parseInt(temp[1])+tileWidth/2;
+		trap.position.y=(wallHeight) / 2;
+		console.log(trap);
+		//console.log(trap.width);
+		scene.add(trap);
+	
+	}else if (coin==1){
+		temp=z[randomInt(0,z.length)].split(",");
+		trap= new THREE.Mesh(trapGeometryX,trapMaterial);
+		trap.position.z=parseInt(temp[0]);
+		trap.position.x=parseInt(temp[1])+tileWidth/2;
+		trap.position.y=(wallHeight) / 2;
+		scene.add(trap);
+	}	
+	i++;
+	}
+}
+  
           
   document.getElementById("output").appendChild(renderer.domElement);
   var render = function() {	
@@ -138,6 +269,11 @@ function init() {
 		document.getElementById("output").removeChild(renderer.domElement);
 		tilesPerRow+=1;
 		floorWidth+=6;
+		checkWallsX=[];
+		checkWallsZ=[];
+		maybeTrapX=[];
+		maybeTrapZ=[];
+		trapNr*=2;
 		init();
 	}
 });
