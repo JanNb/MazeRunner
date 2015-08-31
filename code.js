@@ -2,6 +2,9 @@ var floorWidth = 30;
 var playerMovementVector = new THREE.Vector3( 1, 0, 0 );
 var playerSpeed = 0.1;
 var turnRate = 10;
+var jumping = false;
+var jumpState = 0;
+
 var debug = true;
 
 function init() {
@@ -52,6 +55,15 @@ function init() {
   document.getElementById("output").appendChild(renderer.domElement);
   var render = function() {	
 		 requestAnimationFrame(function () {
+			if (jumping) {
+				playerMovementVector.y = 5 - jumpState;
+				jumpState += 0.2
+				if ((5 - jumpState) <= -5) {
+					jumping = false;
+					playerMovementVector.y = 0;
+					playerSphere.position.y = 3;
+				}
+			}
 			playerMovementVector.multiplyScalar(playerSpeed);
 			playerSphere.position.add(playerMovementVector);
 			playerMovementVector.divideScalar(playerSpeed);
@@ -71,27 +83,30 @@ function init() {
 		83 = S
 		87 = W
 	*/
-	if (e.keyCode==37){
-		//turn left
-		playerMovementVector.applyAxisAngle(new THREE.Vector3(0,1,0), (turnRate * Math.PI / 180));
-	} else if (e.keyCode==38) {
-		//jump
-		
-	} else if (e.keyCode==39) {
-		//turn right
-		playerMovementVector.applyAxisAngle(new THREE.Vector3(0,1,0), ((-turnRate) * Math.PI / 180));
-	} else if (e.keyCode==40) {
-		//turn around (180 degrees)
-		playerMovementVector.applyAxisAngle(new THREE.Vector3(0,1,0), Math.PI);
-	} else if (debug && e.keyCode==87) {
-		//increase Speed
-		playerSpeed += 0.1;
-	} else if (debug && e.keyCode==83) {
-		//decrease Speed
-		if (playerSpeed > 0) {
-			playerSpeed -= 0.1;
-		} else {
-			playerSpeed  = 0;
+	if (!jumping) {
+		if (e.keyCode==37){
+			//turn left
+			playerMovementVector.applyAxisAngle(new THREE.Vector3(0,1,0), (turnRate * Math.PI / 180));
+		} else if (e.keyCode==38) {
+			//jump
+			jumpState = 0;
+			jumping = true;
+		} else if (e.keyCode==39) {
+			//turn right
+			playerMovementVector.applyAxisAngle(new THREE.Vector3(0,1,0), ((-turnRate) * Math.PI / 180));
+		} else if (e.keyCode==40) {
+			//turn around (180 degrees)
+			playerMovementVector.applyAxisAngle(new THREE.Vector3(0,1,0), Math.PI);
+		} else if (debug && e.keyCode==87) {
+			//increase Speed
+			playerSpeed += 0.1;
+		} else if (debug && e.keyCode==83) {
+			//decrease Speed
+			if (playerSpeed > 0) {
+				playerSpeed -= 0.1;
+			} else {
+				playerSpeed  = 0;
+			}
 		}
 	}
 });
