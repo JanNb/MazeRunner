@@ -1,6 +1,6 @@
 
-  var tileWidth = 6;
-  var floorWidth = 30;
+  var tileWidth = 10;
+  var floorWidth = 50;
   var tilesPerRow = 5;
   var wallHeight = 10;
   var wallWidth = 1;
@@ -20,14 +20,6 @@
 	return Math.floor(Math.random() * (max - min)) + min;
 	}
 
-function randomH (min, max) {
-	var randomNr;
-	while (randomNr%tileWidth !=0){ 
-	randomNr=Math.floor(Math.random() * (max - min)) + min;
-	};
-	return randomNr;
-}
-
 
 function init() {
   
@@ -39,7 +31,7 @@ function init() {
   var scene = new THREE.Scene();
   
   var mainCamera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 1, 1000);
-  mainCamera.position.set(-10,140,10);
+  mainCamera.position.set(130,150,130);
   mainCamera.lookAt(scene.position);
 
   //var spotLight = new THREE.SpotLight(0xFFFFFF);
@@ -84,20 +76,7 @@ scene.add( axisHelper );
   targetSphere.position.set(floorWidth-3,3,floorWidth-3);
   //sphere.castShadow=true;
   scene.add(targetSphere);  
-  
-  
-
-  //var test=new THREE.Mesh(hindernissGeometry,hindernissMaterial);
-  //scene.add(test);
-  /*for (var x=0; x<tilesPerRow; x++){
-	  hinderniss.position.x =randomH(0,floorWidth)+tileWidth/2;
-	  hinderniss.position.z =randomH(0,floorWidth);
-
-	  scene.add(hinderniss);
-	  
-  };*/
-
-  //alert (tilesPerRow);
+   
 
   // create the labyrinth
   var labyWalls = createLabyrinth(tilesPerRow, tilesPerRow);
@@ -199,19 +178,15 @@ scene.add( axisHelper );
 		 //console.log(typeof(temp));
 		 var temp2=checkWallsX[i+1].split(",");
 		 //temp2.split(",");
-		 if (parseInt(temp[1])+6 == parseInt(temp2[1])){
+		 if (parseInt(temp[1])+tileWidth == parseInt(temp2[1])){
 			 maybeTrapX.push(checkWallsX[i]);
 		 }
 	 } 
 	 
 	 for (var i=0; i<checkWallsZ.length-1; i++){
 		 var temp=checkWallsZ[i].split(",");
-		 //temp.split(",");
-		 //console.log(temp);
-		 //console.log(typeof(temp));
 		 var temp2=checkWallsZ[i+1].split(",");
-		 //temp2.split(",");
-		 if (parseInt(temp[1])+6 == parseInt(temp2[1])){
+		 if (parseInt(temp[1])+tileWidth == parseInt(temp2[1])){
 			 maybeTrapZ.push(checkWallsZ[i]);
 		 }
 	 } 
@@ -223,31 +198,63 @@ scene.add( axisHelper );
 	function randomTrap(x,z){
 		
 	var trapGeometryX= new THREE.BoxGeometry(tileWidth + wallWidth, wallHeight/2, wallWidth);
+	var trapGeometryX2= new THREE.BoxGeometry((tileWidth + wallWidth)/3, wallHeight, wallWidth);
+	var trapGeometryX3= new THREE.BoxGeometry((tileWidth + wallWidth)/4, wallHeight/2, wallWidth);
+	//var trapGeometryX4= new THREE.BoxGeometry((tileWidth + wallWidth)/2, wallHeight, wallWidth);
+	var tGeoX=[trapGeometryX,trapGeometryX2,trapGeometryX3];
+
 	var trapGeometryZ= new THREE.BoxGeometry(wallWidth, wallHeight/2, tileWidth + wallWidth);
+	var trapGeometryZ2= new THREE.BoxGeometry(wallWidth, wallHeight, (tileWidth + wallWidth)/3);
+	var trapGeometryZ3= new THREE.BoxGeometry(wallWidth, wallHeight/2, (tileWidth + wallWidth)/4);
+	//var trapGeometryZ4= new THREE.BoxGeometry(wallWidth, wallHeight, (tileWidth + wallWidth)/2);
+	var tGeoZ=[trapGeometryZ,trapGeometryZ2,trapGeometryZ3];
+	
 	var trapMaterial= new THREE.MeshLambertMaterial({color:0xff0000});
 	var i=0;
 	var temp;
 	var trap;
 	while (i<trapNr){
 	var coin=randomInt(0,2);
-	console.log(coin);
+	var randomTrapGeo;
+	//console.log(coin);
 	if (coin==0){
-		temp=x[randomInt(0,x.length)].split(",");
-		console.log(temp);
-		trap= new THREE.Mesh(trapGeometryZ,trapMaterial);
+		temp=x[randomInt(1,x.length)].split(",");
+		//console.log(temp);
+		var randNr=randomInt(0,2); 
+		//console.log(randNr);
+		trap= new THREE.Mesh(tGeoZ[randomInt(0,tGeoZ.length)],trapMaterial);
 		trap.position.x=parseInt(temp[0]);
 		trap.position.z=parseInt(temp[1])+tileWidth/2;
 		trap.position.y=(wallHeight) / 2;
-		console.log(trap);
-		//console.log(trap.width);
+		
+		if (trap.geometry.parameters.depth == (tileWidth + wallWidth)/3){
+			var coin2=randomInt(0,2);
+			if (coin2==0){
+			trap.position.z=parseInt(temp[1])+(tileWidth + wallWidth)/6;}
+				else{
+				trap.position.z=parseInt(temp[1])+((tileWidth)-(tileWidth+ wallWidth)/6);}
+		}
+		if (trap.geometry.parameters.height == (wallHeight)/2){
+		trap.position.y=(wallHeight) /4;
+		}
 		scene.add(trap);
 	
 	}else if (coin==1){
-		temp=z[randomInt(0,z.length)].split(",");
-		trap= new THREE.Mesh(trapGeometryX,trapMaterial);
+		temp=z[randomInt(1,z.length)].split(",");
+		trap= new THREE.Mesh(tGeoX[randomInt(0,tGeoX.length)],trapMaterial);
 		trap.position.z=parseInt(temp[0]);
 		trap.position.x=parseInt(temp[1])+tileWidth/2;
 		trap.position.y=(wallHeight) / 2;
+		var coin3=randomInt(0,2);
+		if (trap.geometry.parameters.width == (tileWidth + wallWidth)/3){
+			if (coin3==0){
+			trap.position.x=parseInt(temp[1])+(tileWidth + wallWidth)/6;}
+			else{
+				trap.position.x=parseInt(temp[1])+((tileWidth)-(tileWidth+ wallWidth)/6);}
+		}
+		if (trap.geometry.parameters.height == (wallHeight)/2){
+		trap.position.y=(wallHeight) /4;
+		}
 		scene.add(trap);
 	}	
 	i++;
@@ -268,12 +275,12 @@ scene.add( axisHelper );
 	if (e.keyCode==13){
 		document.getElementById("output").removeChild(renderer.domElement);
 		tilesPerRow+=1;
-		floorWidth+=6;
+		floorWidth+=10;
 		checkWallsX=[];
 		checkWallsZ=[];
 		maybeTrapX=[];
 		maybeTrapZ=[];
-		trapNr*=2;
+		trapNr+=7;
 		init();
 	}
 });
