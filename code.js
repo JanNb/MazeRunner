@@ -5,6 +5,8 @@ var turnRate = 10;
 var jumping = false;
 var jumpState = 0;
 
+const maxJump = 1.4;
+
 var debug = true;
 
 function init() {
@@ -16,7 +18,7 @@ function init() {
   var scene = new THREE.Scene();
   
   var mainCamera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 1, 1000);
-  mainCamera.position.set(-10,140,10);
+  mainCamera.position.set(-40,60,40);
   mainCamera.lookAt(scene.position);
 
   //var spotLight = new THREE.SpotLight(0xFFFFFF);
@@ -56,9 +58,9 @@ function init() {
   var render = function() {	
 		 requestAnimationFrame(function () {
 			if (jumping) {
-				playerMovementVector.y = 5 - jumpState;
-				jumpState += 0.2
-				if ((5 - jumpState) <= -5) {
+				playerSphere.position.y += (maxJump-jumpState);
+				jumpState += 0.2;
+				if ((maxJump - jumpState) <= (-1)*maxJump) {
 					jumping = false;
 					playerMovementVector.y = 0;
 					playerSphere.position.y = 3;
