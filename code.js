@@ -25,7 +25,7 @@ function init() {
   
   
   var renderer = new THREE.WebGLRenderer();
-  renderer.setClearColor(new THREE.Color(0xFFFFFF));
+  renderer.setClearColor(new THREE.Color("#EEAD0E"));
   renderer.setSize(window.innerWidth, window.innerHeight);
   
   var scene = new THREE.Scene();
@@ -47,14 +47,19 @@ function init() {
 scene.add( axisHelper );
 
   
-  var wallMaterial = new THREE.MeshPhongMaterial({color: 0x778899});
+  var wallMaterial = new THREE.MeshBasicMaterial({
+        map: THREE.ImageUtils.loadTexture(
+          "mauer.jpg")
+      });
 
   // the dimensions for the whole board (called `floor') as well as
   // individual wooden tiles and the gray walls
   
   
   var planeGeometry= new THREE.PlaneGeometry(floorWidth,floorWidth);
-  var planeMaterial= new THREE.MeshLambertMaterial({color: 0x00cccc});
+  var planeMaterial= new THREE.MeshLambertMaterial({color: "#8B4513"});
+    
+  
   var plane= new THREE.Mesh (planeGeometry, planeMaterial);
   plane.rotation.x=-0.5*Math.PI;
   //plane.receiveShadow = true;
@@ -209,7 +214,10 @@ scene.add( axisHelper );
 	//var trapGeometryZ4= new THREE.BoxGeometry(wallWidth, wallHeight, (tileWidth + wallWidth)/2);
 	var tGeoZ=[trapGeometryZ,trapGeometryZ2,trapGeometryZ3];
 	
-	var trapMaterial= new THREE.MeshLambertMaterial({color:0xff0000});
+	var trapMaterial= new THREE.MeshBasicMaterial({
+        map: THREE.ImageUtils.loadTexture(
+          "wall1.jpg")
+      });
 	var i=0;
 	var temp;
 	var trap;
